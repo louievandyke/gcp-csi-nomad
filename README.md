@@ -14,8 +14,7 @@ Clone the repo and optionally use [Vagrant](https://www.vagrantup.com/intro)
 to bootstrap a local staging environment:
 
 ```bash
-$ git clone git@github.com:hashicorp/nomad.git
-$ cd nomad/terraform
+$ git clone https://github.com/louievandyke/gcp-csi-nomad.git
 $ vagrant up && vagrant ssh
 ```
 
@@ -24,9 +23,7 @@ Azure CLI.
 
 ## Provision a cluster
 
-- Follow the steps [here](aws/README.md) to provision a cluster on AWS.
-- Follow the steps [here](azure/README.md) to provision a cluster on Azure.
-- Follow the steps [here](gcp/README.md) to provision a cluster on GCP.
+- Follow the steps [here](gcp/README.md) to provision a cluster on GCP using Google Persistent disks as CSI volumes.
 
 Continue with the steps below after a cluster has been provisioned.
 
@@ -69,11 +66,3 @@ $ dig standby.vault.service.consul
 See the [Getting Started guide](https://www.vaultproject.io/intro/getting-started/first-secret.html)
 for an introduction to Vault.
 
-## Getting started with Nomad & the HashiCorp stack
-
-Use the following links to get started with Nomad and its HashiCorp integrations:
-
-- [Getting Started with Nomad](https://www.nomadproject.io/intro/getting-started/jobs.html)
-- [Consul integration](https://www.nomadproject.io/docs/service-discovery/index.html)
-- [Vault integration](https://www.nomadproject.io/docs/vault-integration/index.html)
-- [consul-template integration](https://www.nomadproject.io/docs/job-specification/template.html)
