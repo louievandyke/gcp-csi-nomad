@@ -1,272 +1,391 @@
-# Provision a Nomad cluster on GCP
+# Provision a Nomad cluster on GCP with Google Compute Engine - Persistent Disk
 
-[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://ssh.cloud.google.com/cloudshell/editor?shellonly=true&cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fhashicorp%2Fnomad&cloudshell_working_dir=terraform%2Fgcp&cloudshell_tutorial=README.md)
-
-To get started, you will need a GCP [account](https://cloud.google.com/free).
-
-## Welcome
-
-This tutorial will teach you how to deploy [Nomad](https://www.nomadproject.io/) clusters to the Google Cloud Platform using [Packer](https://www.packer.io/) and [Terraform](https://www.terraform.io/).
 
 Includes:
 
-- Installing HashiCorp Tools (Nomad, Consul, Vault, Terraform, and Packer).
-- Installing the GCP SDK CLI Tools, if you're not using Cloud Shell.
-- Creating a new GCP project, along with a Terraform Service Account.
-- Building a golden image using Packer.
-- Deploying a cluster with Terraform.
+* Installing the GCP SDK CLI Tools, if you're not using Cloud Shell.
+* Creating a new GCP project, along with a Terraform Service Account.
+* Building a golden image using Packer.
+* Deploying a cluster with Terraform.
 
-## Install HashiCorp Tools
 
-### Nomad
+1. #### Login to google cloud:
+   ```
+    gcloud auth login
+   ```
 
-Download the latest version of [Nomad](https://www.nomadproject.io/) from HashiCorp's website by copying and pasting this snippet in the terminal:
+2. #### Create a temporary [project via doormat](https://doormat.hashicorp.services/gcp/project/temp/create), and then set it like this:
 
-```console
-curl "https://releases.hashicorp.com/nomad/0.12.4/nomad_0.12.4_linux_amd64.zip" -o nomad.zip
-unzip nomad.zip
-sudo mv nomad /usr/local/bin
-nomad --version
-```
+   ```
+   export GOOGLE_PROJECT=<your project id>
+   ```
 
-### Consul
+   ```
+   gcloud config set project $GOOGLE_PROJECT
+   ```
+   
+3. #### Link Billing Account to Project
+    ```
+    ➜  gcp-csi-nomad git:(main) gcloud alpha billing accounts list
 
-Download the latest version of [Consul](https://www.consul.io/) from HashiCorp's website by copying and pasting this snippet in the terminal:
+    ACCOUNT_ID            NAME              OPEN  MASTER_ACCOUNT_ID
+    XXXXXX-XXXXXX-XXXXXX  Engineering       True  XXXXXX-XXXXXX-XXXXXX 
+    XXXXXX-XXXXXX-XXXXXX  Customer Success  True  XXXXXX-XXXXXX-XXXXXX 
+    XXXXXX-XXXXXX-XXXXXX  Exec              True  XXXXXX-XXXXXX-XXXXXX 
+    ```
+    
+    Locate the `ACCOUNT_ID` for the billing account you want to use, and set the `GOOGLE_BILLING_ACCOUNT` environment variable. 
 
-```console
-curl "https://releases.hashicorp.com/consul/1.8.3/consul_1.8.3_linux_amd64.zip" -o consul.zip
-unzip consul.zip
-sudo mv consul /usr/local/bin
-consul --version
-```
+    ```
+    export GOOGLE_BILLING_ACCOUNT="XXXXXX-XXXXXX-XXXXXX"
+    ```
+    
+    Then we can link the `GOOGLE_BILLING_ACCOUNT` with the previously created `GOOGLE_PROJECT`: (step 2)
 
-### Vault
-
-Download the latest version of [Vault](https://www.vaultproject.io/) from HashiCorp's website by copying and pasting this snippet in the terminal:
-
-```console
-curl "https://releases.hashicorp.com/vault/1.5.3/vault_1.5.3_linux_amd64.zip" -o vault.zip
-unzip vault.zip
-sudo mv vault /usr/local/bin
-vault --version
-```
-
-### Packer
-
-Download the latest version of [Packer](https://www.packer.io/) from HashiCorp's website by copying and pasting this snippet in the terminal:
-
-```console
-curl "https://releases.hashicorp.com/packer/1.6.2/packer_1.6.2_linux_amd64.zip" -o packer.zip
-unzip packer.zip
-sudo mv packer /usr/local/bin
-packer --version
-```
-
-### Terraform
-
-Download the latest version of [Terraform](https://www.terraform.io/) from HashiCorp's website by copying and pasting this snippet in the terminal:
-
-```console
-curl "https://releases.hashicorp.com/terraform/0.13.1/terraform_0.13.1_linux_amd64.zip" -o terraform.zip
-unzip terraform.zip
-sudo mv terraform /usr/local/bin
-terraform --version
-```
-
-### Install and Authenticate the GCP SDK Command Line Tools
-
-**If you are using [Google Cloud](https://cloud.google.com/shell), you already have `gcloud` set up, and you can safely skip this step.**
-
-To install the GCP SDK Command Line Tools, follow the installation instructions for your specific operating system:
-
-- [Linux](https://cloud.google.com/sdk/docs/downloads-interactive#linux)
-- [MacOS](https://cloud.google.com/sdk/docs/downloads-interactive#mac)
-- [Windows](https://cloud.google.com/sdk/docs/downloads-interactive#windows)
-
-After installation, authenticate `gcloud` with the following command:
-
-```console
-gcloud auth login
-```
-
-## Create a New Project
-
-Generate a project ID with the following command:
-
-```console
-export GOOGLE_PROJECT="nomad-gcp-$(cat /dev/random | head -c 5 | xxd -p)"
-```
-
-Using that project ID, create a new GCP [project](https://cloud.google.com/docs/overview#projects):
-
-```console
-gcloud projects create $GOOGLE_PROJECT
-```
-
-And then set your `gcloud` config to use that project:
-
-```console
-gcloud config set project $GOOGLE_PROJECT
-```
-
-### Link Billing Account to Project
-
-Next, let's link a billing account to that project. To determine what billing accounts are available, run the following command:
-
-```console
-gcloud alpha billing accounts list
-```
-
-Locate the `ACCOUNT_ID` for the billing account you want to use, and set the `GOOGLE_BILLING_ACCOUNT` environment variable. Replace the `XXXXXXX` with the `ACCOUNT_ID` you located with the previous command output:
-
-```console
-export GOOGLE_BILLING_ACCOUNT="XXXXXXX"
-```
-
-So we can link the `GOOGLE_BILLING_ACCOUNT` with the previously created `GOOGLE_PROJECT`:
-
-```console
-gcloud alpha billing projects link "$GOOGLE_PROJECT" --billing-account "$GOOGLE_BILLING_ACCOUNT"
-```
-
-### Enable Compute API
-
-In order to deploy VMs to the project, we need to enable the compute API:
-
-```console
-gcloud services enable compute.googleapis.com
-```
-
-### Create Terraform Service Account
-
-Finally, let's create a Terraform Service Account user and its `account.json` credentials file:
-
-```console
-gcloud iam service-accounts create terraform \
+    ```
+    gcloud alpha billing projects link "$GOOGLE_PROJECT" --billing-account "$GOOGLE_BILLING_ACCOUNT"
+    ```
+    
+4. #### Enable Compute API
+   
+   In order to deploy VMs to the project, we need to enable the compute API:
+   ```
+   gcloud services enable compute.googleapis.com
+   ```
+   
+5. #### Create Terraform Service Account
+    Create a Terraform Service Account user and its `account.json` credentials file:
+    ```
+    gcloud iam service-accounts create terraform \
     --display-name "Terraform Service Account" \
     --description "Service account to use with Terraform"
-```
-
-```console
-gcloud projects add-iam-policy-binding "$GOOGLE_PROJECT" \
-  --member serviceAccount:"terraform@$GOOGLE_PROJECT.iam.gserviceaccount.com" \
-  --role roles/editor
-```
-
-```console
-gcloud iam service-accounts keys create account.json \
+    ```
+    
+    ```
+    gcloud projects add-iam-policy-binding "$GOOGLE_PROJECT" \
+    --member serviceAccount:"terraform@$GOOGLE_PROJECT.iam.gserviceaccount.com" \
+    --role roles/editor
+    ```
+    
+    ```
+    gcloud iam service-accounts keys create account.json \
     --iam-account "terraform@$GOOGLE_PROJECT.iam.gserviceaccount.com"
-```
-
-> ⚠️ **Warning**
->
-> The `account.json` credentials gives privileged access to this GCP project. Be careful to avoid leaking these credentials by accidentally committing them to version control systems such as `git`, or storing them where they are visible to others. In general, storing these credentials on an individually operated, private computer (like your laptop) or in your own GCP cloud shell is acceptable for testing purposes. For production use, or for teams, use a secrets management system like HashiCorp [Vault](https://www.vaultproject.io/). For this tutorial's purposes, we'll be storing the `account.json` credentials on disk in the cloud shell.
-
-Now set the _full path_ of the newly created `account.json` file as `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
-
-```console
-export GOOGLE_APPLICATION_CREDENTIALS=$(realpath account.json)
-```
-
-### Ensure Required Environment Variables Are Set
-
+    ```
+    
+    ##### csi specific services and policy binding
+    ```
+    gcloud services enable \
+    iam.googleapis.com \
+    file.googleapis.com \
+    cloudresourcemanager.googleapis.com
+    
+    gcloud projects add-iam-policy-binding "$GOOGLE_PROJECT" \
+    --member serviceAccount:"terraform@$GOOGLE_PROJECT.iam.gserviceaccount.com" \
+    --role roles/owner
+    ```
+    
+    Now set the full path of the newly created account.json file as `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
+    ```
+    export GOOGLE_APPLICATION_CREDENTIALS=$(realpath account.json)
+    ```
+    
+#### Ensure Required Environment Variables Are Set
 Before moving onto the next steps, ensure the following environment variables are set:
 
-- `GOOGLE_PROJECT` with your selected GCP project ID.
-- `GOOGLE_APPLICATION_CREDENTIALS` with the _full path_ to the Terraform Service Account `account.json` credentials file created in the last step.
+* `GOOGLE_PROJECT` with your selected GCP project ID.
+* `GOOGLE_APPLICATION_CREDENTIALS` with the full path to the Terraform Service Account account.json credentials file created in the last step.
 
-## Build HashiStack Golden Image with Packer
 
-[Packer](https://www.packer.io/intro/index.html) is HashiCorp's open source tool for creating identical machine images for multiple platforms from a single source configuration. The machine image created here can be customized through modifications to the [build configuration file](https://github.com/hashicorp/nomad/blob/master/terraform/gcp/packer.json) and the [shell script](https://github.com/hashicorp/nomad/blob/master/terraform/shared/scripts/setup.sh).
 
-Use the following command to build the machine image:
+6. Change into the env/us-east environment directory:
 
-```console
-packer build packer.json
-```
+    ```
+    cd env/us-east
+    ```
 
-## Provision a cluster with Terraform
+    Initialize Terraform:
+    ```
+    terraform init
+    ```
+    Plan infrastructure changes with Terraform:
+    ```
+    terraform plan -var="project=${GOOGLE_PROJECT}" -var="credentials=${GOOGLE_APPLICATION_CREDENTIALS}"
+    ```
+    Apply infrastructure changes with Terraform:
+    ```
+    terraform apply -auto-approve -var="project=${GOOGLE_PROJECT}" -var="credentials=${GOOGLE_APPLICATION_CREDENTIALS}"
+    ```
+    
+    
+#### Access the Cluster
 
-Change into the `env/us-east` environment directory:
-
-```console
-cd env/us-east
-```
-
-Initialize Terraform:
-
-```console
-terraform init
-```
-
-Plan infrastructure changes with Terraform:
-
-```console
-terraform plan -var="project=${GOOGLE_PROJECT}" -var="credentials=${GOOGLE_APPLICATION_CREDENTIALS}"
-```
-
-Apply infrastructure changes with Terraform:
-
-```console
-terraform apply -auto-approve -var="project=${GOOGLE_PROJECT}" -var="credentials=${GOOGLE_APPLICATION_CREDENTIALS}"
-```
-
-## Access the Cluster
-
-To access the Nomad, Consul, or Vault web UI inside the cluster, create an [SSH tunnel](https://cloud.google.com/community/tutorials/ssh-tunnel-on-gce) using `gcloud`. To open up tunnels to _all_ of the UIs available in the cluster, run these commands which will start each SSH tunnel as a background process in your current shell:
-
-```console
-gcloud compute ssh hashistack-server-0 --zone=us-east1-c --tunnel-through-iap -- -f -N -L 127.0.0.1:4646:127.0.0.1:4646
-gcloud compute ssh hashistack-server-0 --zone=us-east1-c --tunnel-through-iap -- -f -N -L 127.0.0.1:8200:127.0.0.1:8200
-gcloud compute ssh hashistack-server-0 --zone=us-east1-c --tunnel-through-iap -- -f -N -L 127.0.0.1:8500:127.0.0.1:8500
-```
-
-After running those commands, you can now click any of the following links to open up a Web Preview using Cloud Shell:
-
-- [Nomad](https://ssh.cloud.google.com/devshell/proxy?authuser=0&port=4646&environment_id=default)
-- [Vault](https://ssh.cloud.google.com/devshell/proxy?authuser=0&port=8200&environment_id=default)
-- [Consul](https://ssh.cloud.google.com/devshell/proxy?authuser=0&port=8500&environment_id=default)
-
-If you're **not** using Cloud Shell, you can use any of these links:
-
-- [Nomad](http://127.0.0.1:4646)
-- [Vault](http://127.0.0.1:8200)
-- [Consul](http://127.0.0.1:8500)
-
-In case you want to try out any of the optional steps with the Vault CLI later on, set this helper variable:
+To access the Nomad, Consul, or Vault web UI inside the cluster, create an [SSH tunnel](https://cloud.google.com/community/tutorials/ssh-tunnel-on-gce) using gcloud. To open up tunnels to all of the UIs available in the cluster, run these commands which will start each SSH tunnel as a background process in your current shell:
 
 ```
-export VAULT_ADDR=http://localhost:8200
+gcloud compute ssh hashistack-server-1 --zone=us-east1-c --tunnel-through-iap -- -f -N -L 127.0.0.1:4646:127.0.0.1:4646
+gcloud compute ssh hashistack-server-1 --zone=us-east1-c --tunnel-through-iap -- -f -N -L 127.0.0.1:8500:127.0.0.1:8500
+gcloud compute ssh hashistack-server-1 --zone=us-east1-c --tunnel-through-iap -- -f -N -L 127.0.0.1:8200:127.0.0.1:8200
 ```
 
-## Next Steps
 
-You have deployed a Nomad cluster to GCP! 🎉
+* [Nomad](http://127.0.0.1:4646/)
+* [Vault](http://127.0.0.1:8200/)
+* [Consul](http://127.0.0.1:8500/)
 
-Click [here](https://github.com/hashicorp/nomad/blob/master/terraform/README.md#test) for next steps.
 
-> ### After You Finish
->
-> Come back here when you're done exploring Nomad and the HashiCorp stack. In the next section, you'll learn how to clean up, and will destroy the demo infrastructure you've created.
 
-## Conclusion
+#### Enable privileged Docker containers
 
-You have deployed a Nomad cluster to GCP!
+Update the Nomad configuration on any client that you want to mount a disk to enable privileged docker containers.
 
-### Destroy Infrastructure
-
-To destroy all the demo infrastructure:
-
-```console
-terraform destroy -force -var="project=${GOOGLE_PROJECT}" -var="credentials=${GOOGLE_APPLICATION_CREDENTIALS}"
+```
+gcloud compute ssh hashistack-client-0 --zone=us-east1-c --tunnel-through-iap
 ```
 
-### Delete the Project
 
-Finally, to completely delete the project:
+You can use this command once connected to a client node to create a suitable configuration file, restart Nomad, and exit.
 
-gcloud projects delete \$GOOGLE_PROJECT
 
-> ### Alternative: Use the GUI
->
-> If you prefer to delete the project using GCP's Cloud Console, follow this link to GCP's [Cloud Resource Manager](https://console.cloud.google.com/cloud-resource-manager).
+```bash=
+echo 'plugin "docker" {
+  config {
+    allow_privileged = true
+  }
+}' | sudo tee /etc/nomad.d/docker.hcl
+sudo systemctl restart nomad
+sleep 10
+sudo systemctl --no-pager status nomad
+exit
+```
+
+#### Start working with the CSI folder
+```
+mkdir -p ~/csi
+terraform output > ~/csi/disks.out
+cp nomad-sa-key.json ~/csi
+```
+
+#### Create the files you’ll need for Nomad
+##### controller.nomad
+
+
+```bash=
+job "controller" {
+  datacenters = ["dc1"]
+  group "controller" {
+    task "plugin" {
+      driver = "docker"
+      template {
+        data = <<EOH
+{{ key "service_account" }}
+EOH
+  destination = "secrets/creds.json"
+      }
+       env {
+           "GOOGLE_APPLICATION_CREDENTIALS" = "/secrets/creds.json"
+        }
+      config {
+        image = "gcr.io/gke-release/gcp-compute-persistent-disk-csi-driver:v0.7.0-gke.0"
+       args = [
+          "--endpoint=unix:///csi/csi.sock",
+          "--v=6",
+          "--logtostderr",
+          "--run-node-service=false"
+        ]
+      }
+      csi_plugin {
+        id        = "gcepd"
+        type      = "controller"
+        mount_dir = "/csi"
+      }
+      resources {
+        cpu    = 500
+        memory = 256
+      }
+    }
+  }
+}
+```
+
+##### nodes.nomad
+
+```bash=
+job "nodes" {
+  datacenters = ["dc1"]
+  type = "system"
+  group "nodes" {
+    task "plugin" {
+      driver = "docker"
+      template {
+        data = <<EOH
+{{ key "service_account" }}
+EOH
+  destination = "secrets/creds.json"
+      }
+      env { "GOOGLE_APPLICATION_CREDENTIALS" = "/secrets/creds.json"
+      }
+      config {
+        image = "gcr.io/gke-release/gcp-compute-persistent-disk-csi-driver:v0.7.0-gke.0"
+        args = [
+          "--endpoint=unix:///csi/csi.sock",
+          "--v=6",
+          "--logtostderr",
+          "--run-controller-service=false"
+        ]
+        privileged = true
+      }
+      csi_plugin {
+        id        = "gcepd"
+        type      = "node"
+        mount_dir = "/csi"
+      }
+      resources {
+        cpu    = 500
+        memory = 256
+      }
+    }
+  }
+}
+```
+
+
+##### alpine.nomad
+```bash=
+job "alpine" {
+  datacenters = ["dc1"]
+
+  group "alloc" {
+    restart {
+      attempts = 10
+      interval = "5m"
+      delay    = "25s"
+      mode     = "delay"
+    }
+
+    volume "jobVolume" {
+      type      = "csi"
+      read_only = false
+      source    = "disk-0"
+    }
+
+    task "docker" {
+      driver = "docker"
+
+      volume_mount {
+        volume      = "jobVolume"
+        destination = "/srv"
+        read_only   = false
+      }
+
+      config {
+        image = "alpine"
+        command = "sh"
+        args = ["-c","while true; do sleep 10; done"]
+      }
+    }
+  }
+}
+```
+
+##### volume.hcl
+
+Look at the file you created called disks.out. Select a volume and copy out its URL from the output. Take everything after `https://www.googleapis.com/compute/v1/`` and paste it into the external_id value.
+
+```bash=
+type = "csi"
+id = "disk-0"
+name = "disk-0"
+external_id = "projects/«gcp-project-id»/zones/us-east1-c/disks/hashistack-csi-disk-0"
+access_mode = "single-node-writer"
+attachment_mode = "file-system"
+plugin_id = "gcepd"
+```
+
+Run controller.nomad and nodes.nomad
+
+```
+nomad run controller.nomad
+nomad run nodes.nomad
+```
+
+Run nomad plugin status to verify that all
+of the controller and node instances are up and healthy
+
+```
+nomad plugin status
+```
+
+Register the volume using the `nomad volume register` command.
+```
+nomad volume register volume.hcl
+```
+
+Check that your volume is listed in nomad volume status
+
+```bash=
+$ nomad volume status
+Container Storage Interface
+ID      Name    Plugin ID  Schedulable  Access Mode
+disk-0  disk-0  gcepd      true         single-node-writer
+```
+
+You can get extended information about your CSI disk bt adding its identifier to the volume status command.
+
+
+```bash=
+$ nomad volume status disk-0
+ID                   = disk-0
+Name                 = disk-0
+External ID          = projects/«project_id»/zones/«gcp_zone»/disks/hashistack-csi-disk-0
+Plugin ID            = gcepd
+Provider             = pd.csi.storage.gke.io
+Version              = v0.7.0-gke.0
+Schedulable          = true
+Controllers Healthy  = 1
+Controllers Expected = 1
+Nodes Healthy        = 3
+Nodes Expected       = 3
+Access Mode          = single-node-writer
+Attachment Mode      = file-system
+Mount Options        = <none>
+Namespace            = default
+
+Allocations
+No allocations placed
+```
+
+Next, run the alpine.nomad file.
+```
+nomad run alpine.nomad
+```
+
+Then verify the allocation is associated with the disk
+
+```
+$ nomad volume status disk-0
+ID                   = disk-0
+Name                 = disk-0
+External ID          = projects/«project_id»/zones/«gcp_zone»/disks/hashistack-csi-disk-0
+Plugin ID            = gcepd
+Provider             = pd.csi.storage.gke.io
+Version              = v0.7.0-gke.0
+Schedulable          = true
+Controllers Healthy  = 1
+Controllers Expected = 1
+Nodes Healthy        = 3
+Nodes Expected       = 3
+Access Mode          = single-node-writer
+Attachment Mode      = file-system
+Mount Options        = <none>
+Namespace            = default
+
+Allocations
+ID        Node ID   Task Group  Version  Desired  Status   Created  Modified
+0fb4b9d0  b9438f36  alloc       0        run      running  44s ago  18s ago
+```
+
+Use nomad alloc exec to connect to the alpine container.
+
+`nomad alloc exec -i -t -task alloc 0fb4b9d0 /bin/sh`
+
+
