@@ -1,0 +1,7 @@
+csi-disks = {
+  "hashistack-csi-disk-1" = "https://www.googleapis.com/compute/v1/projects/lvd-nomad/zones/us-east1-c/disks/hashistack-csi-disk-1"
+  "hashistack-csi-disk-2" = "https://www.googleapis.com/compute/v1/projects/lvd-nomad/zones/us-east1-c/disks/hashistack-csi-disk-2"
+  "hashistack-csi-disk-3" = "https://www.googleapis.com/compute/v1/projects/lvd-nomad/zones/us-east1-c/disks/hashistack-csi-disk-3"
+  "hashistack-csi-disk-4" = "https://www.googleapis.com/compute/v1/projects/lvd-nomad/zones/us-east1-c/disks/hashistack-csi-disk-4"
+  "hashistack-csi-disk-5" = "https://www.googleapis.com/compute/v1/projects/lvd-nomad/zones/us-east1-c/disks/hashistack-csi-disk-5"
+}
