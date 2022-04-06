@@ -1,12 +1,14 @@
 # Provision a Nomad cluster in the cloud
 
-Use this repo to easily provision a Nomad sandbox environment on AWS, Azure, or GCP with
+Use this repo to provision a Nomad sandbox environment on GCP with
 [Packer](https://packer.io) and [Terraform](https://terraform.io).
 [Consul](https://www.consul.io/intro/index.html) and
 [Vault](https://www.vaultproject.io/intro/index.html) are also installed
-(colocated for convenience). The intention is to allow easy exploration of
-Nomad and its integrations with the HashiCorp stack. This is _not_ meant to be
-a production ready environment.
+(colocated for convenience). 
+
+# Google Persistent Disk
+
+This repo is setup to use GCP to test Nomad's CSI features.  This repo provisions the necessary plugins and volume specs to enable the alpine.nomad job to leverage persistent disks as volumes.
 
 ## Setup
 
