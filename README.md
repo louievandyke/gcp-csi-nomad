@@ -20,8 +20,7 @@ $ git clone https://github.com/louievandyke/gcp-csi-nomad.git
 $ vagrant up && vagrant ssh
 ```
 
-The Vagrant staging environment pre-installs Packer, Terraform, Docker and the
-Azure CLI.
+The Vagrant staging environment pre-installs Packer, Terraform, and Docker.
 
 ## Provision a cluster
 
