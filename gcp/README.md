@@ -1,14 +1,6 @@
 # Provision a Nomad cluster on GCP with Google Compute Engine - Persistent Disk
 
 
-Includes:
-
-* Installing the GCP SDK CLI Tools, if you're not using Cloud Shell.
-* Creating a new GCP project, along with a Terraform Service Account.
-* Building a golden image using Packer.
-* Deploying a cluster with Terraform.
-
-
 1. #### Login to google cloud:
    ```
     gcloud auth login
