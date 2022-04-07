@@ -40,6 +40,12 @@ provider "google" {
   credentials = file(var.credentials)
 }
 
+# Configure the Nomad provider
+provider "nomad" {
+  address = "http://${module.hashistack.server_lb_ip}:4646"
+  region  = "global"
+}
+
 module "hashistack" {
   source              = "../../modules/hashistack"
   project             = var.project
