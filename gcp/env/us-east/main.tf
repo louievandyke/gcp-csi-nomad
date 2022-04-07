@@ -41,10 +41,10 @@ provider "google" {
 }
 
 # Configure the Nomad provider
-provider "nomad" {
-  address = "http://$(curl -H "Metadata-Flavor: Google" http://metadata/computeMetadata/v1/instance/network-interfaces/0/ip):4646"
-  region  = "global"
-}
+#provider "nomad" {
+#  address = "http://$(curl -H "Metadata-Flavor: Google" http://metadata/computeMetadata/v1/instance/network-interfaces/0/ip):4646"
+#  region  = "global"
+#}
 
 module "hashistack" {
   source              = "../../modules/hashistack"

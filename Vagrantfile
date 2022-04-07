@@ -68,8 +68,6 @@ Vagrant.configure(2) do |config|
 
   SHELL
 
-  config.vm.synced_folder "aws/", "/home/vagrant/aws", owner: "vagrant", group: "vagrant"
-  config.vm.synced_folder "azure/", "/home/vagrant/azure", owner: "vagrant", group: "vagrant"
   config.vm.synced_folder "shared/", "/home/vagrant/shared", owner: "vagrant", group: "vagrant"
   config.vm.synced_folder "examples/", "/home/vagrant/examples", owner: "vagrant", group: "vagrant"
 
