@@ -11,8 +11,13 @@
    #### The new GCP doormat process allows for temporary accounts to be created for up to seven days.  These new temporary accounts include some of the necessary permissions that we used to have to set manually.  I'm still testing the new process
    
    
-   #### note for slack 
+   #### note from security 
    ```
+   Hey @Louie, from the looks of it, almost all of the steps you're trying to follow in the Nomad documentation have been done for your as apart of the      temporary GCP project provisioning.
+   The compute, IAM, and cloudresourcemanager services should all be enabled by Doormat; file.googleapis.com isn't taken care of today, but we should be
+   able to add that easily in time for your next temp project needs. In the meantime, the file API has been enabled for csi-gcp-nomad-test.
+   Instead of the terraform@ service account, Doormat also created for you a lvandyke-dev@ account that can be used instead.
+   This should resolve the issues you're having. 
    
    ```
 
@@ -53,7 +58,9 @@
    gcloud services enable compute.googleapis.com
    ```
    
-5. #### Create Terraform Service Account
+5. #### Create Terraform Service Account.  NOTE - this process will break.  There is a new account that is created for you by default now.  
+
+    ie.) 
     Create a Terraform Service Account user and its `account.json` credentials file:
     ```
     gcloud iam service-accounts create terraform \
