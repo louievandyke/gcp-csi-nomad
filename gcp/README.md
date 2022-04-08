@@ -8,6 +8,14 @@
 
 2. #### Create a temporary [project via doormat](https://doormat.hashicorp.services/gcp/project/temp/create), and then set it like this:
 
+   #### The new GCP doormat process allows for temporary accounts to be created for up to seven days.  These new temporary accounts include some of the necessary permissions that we used to have to set manually.  I'm still testing the new process
+   
+   
+   #### note for slack 
+   ```
+   
+   ```
+
    ```
    export GOOGLE_PROJECT=<your project id>
    ```
