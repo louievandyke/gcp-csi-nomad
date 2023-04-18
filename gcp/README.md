@@ -9,18 +9,8 @@
 
 2. #### Create a temporary [project via doormat](https://doormat.hashicorp.services/gcp/project/temp/create), and then set it like this:
 
-   #### The new GCP doormat process allows for temporary accounts to be created for up to seven days.  These new temporary accounts include some of the necessary permissions that we used to have to set manually.  I'm still testing the new process
+   #### The new GCP doormat process allows for temporary accounts to be created for up to seven days.  Once your project is approved please note the project id that is created and use it below.
    
-   
-   #### note from security 
-   ```
-   Hey @Louie, from the looks of it, almost all of the steps you're trying to follow in the Nomad documentation have been done for your as apart of the      temporary GCP project provisioning.
-   The compute, IAM, and cloudresourcemanager services should all be enabled by Doormat; file.googleapis.com isn't taken care of today, but we should be
-   able to add that easily in time for your next temp project needs. In the meantime, the file API has been enabled for csi-gcp-nomad-test.
-   Instead of the terraform@ service account, Doormat also created for you a lvandyke-dev@ account that can be used instead.
-   This should resolve the issues you're having. 
-   
-   ```
    ```
    export GOOGLE_PROJECT=<your project id>
    ```
@@ -29,7 +19,7 @@
    gcloud config set project $GOOGLE_PROJECT
    ```
 
-4. #### Enable Compute API
+4. #### Enable Compute API - NOTE: this may already be enabled and you can verify via the cli command: `gcloud services list`
    
    In order to deploy VMs to the project, we need to enable the compute API:
    ```
