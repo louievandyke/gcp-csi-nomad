@@ -1,3 +1,4 @@
+
 # Provision a Nomad cluster on GCP with Google Compute Engine - Persistent Disk
 
 
@@ -20,7 +21,6 @@
    This should resolve the issues you're having. 
    
    ```
-
    ```
    export GOOGLE_PROJECT=<your project id>
    ```
@@ -28,29 +28,7 @@
    ```
    gcloud config set project $GOOGLE_PROJECT
    ```
-   
-3. #### Link Billing Account to Project
-    ```
-    ➜  gcp-csi-nomad git:(main) gcloud alpha billing accounts list
 
-    ACCOUNT_ID            NAME              OPEN  MASTER_ACCOUNT_ID
-    XXXXXX-XXXXXX-XXXXXX  Engineering       True  XXXXXX-XXXXXX-XXXXXX 
-    XXXXXX-XXXXXX-XXXXXX  Customer Success  True  XXXXXX-XXXXXX-XXXXXX 
-    XXXXXX-XXXXXX-XXXXXX  Exec              True  XXXXXX-XXXXXX-XXXXXX 
-    ```
-    
-    Locate the `ACCOUNT_ID` for the billing account you want to use, and set the `GOOGLE_BILLING_ACCOUNT` environment variable. 
-
-    ```
-    export GOOGLE_BILLING_ACCOUNT="XXXXXX-XXXXXX-XXXXXX"
-    ```
-    
-    Then we can link the `GOOGLE_BILLING_ACCOUNT` with the previously created `GOOGLE_PROJECT`: (step 2)
-
-    ```
-    gcloud alpha billing projects link "$GOOGLE_PROJECT" --billing-account "$GOOGLE_BILLING_ACCOUNT"
-    ```
-    
 4. #### Enable Compute API
    
    In order to deploy VMs to the project, we need to enable the compute API:
@@ -58,7 +36,7 @@
    gcloud services enable compute.googleapis.com
    ```
    
-5. #### Create Terraform Service Account.  NOTE - this process will break.  There is a new account that is created for you by default now.  
+5. #### Create Terraform Service Account.
 
     ie.) 
     Create a Terraform Service Account user and its `account.json` credentials file:
@@ -146,7 +124,7 @@ gcloud compute ssh hashistack-server-1 --zone=us-east1-c --tunnel-through-iap --
 Update the Nomad configuration on any client that you want to mount a disk to enable privileged docker containers.
 
 ```
-gcloud compute ssh hashistack-client-0 --zone=us-east1-c --tunnel-through-iap
+gcloud compute ssh hashistack-client-1 --zone=us-east1-c --tunnel-through-iap
 ```
 
 
