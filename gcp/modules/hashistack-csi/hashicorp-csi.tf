@@ -76,7 +76,7 @@ resource "google_service_account_iam_member" "nomad-sa-csi" {
 }
 
 resource "google_project_iam_member" "nomad-sa-csi" {
-  project = "lvd-nomad"
+  project = var.project
   count  = local.shouldCreate
   role   = google_project_iam_custom_role.nomad[count.index].id
   member = "serviceAccount:${google_service_account.nomad[count.index].email}"
