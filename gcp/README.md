@@ -38,7 +38,7 @@
     ```
     gcloud iam service-accounts keys create account.json \
     --iam-account "terraform@$GOOGLE_PROJECT.iam.gserviceaccount.com"
-    ``
+    ```
     
     Now set the full path of the newly created account.json file as `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
     
