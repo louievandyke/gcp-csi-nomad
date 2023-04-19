@@ -41,9 +41,12 @@
     ``
     
     Now set the full path of the newly created account.json file as `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
+    
     ```
     export GOOGLE_APPLICATION_CREDENTIALS=$(realpath account.json)
     ```
+    eg.
+    `export GOOGLE_APPLICATION_CREDENTIALS=/Users/louvandyke/gcp-csi-nomad/account.json`
     
 #### Ensure Required Environment Variables Are Set
 Before moving onto the next steps, ensure the following environment variables are set:
