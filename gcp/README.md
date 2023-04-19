@@ -39,7 +39,7 @@
     gcloud iam service-accounts keys create account.json \
     --iam-account "terraform@$GOOGLE_PROJECT.iam.gserviceaccount.com"
     ```
-##### csi specific services and policy binding
+   ##### csi specific services and policy binding
         
     ```
     gcloud services enable \
