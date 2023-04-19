@@ -66,13 +66,13 @@ Before moving onto the next steps, ensure the following environment variables ar
 * `GOOGLE_PROJECT` with your selected GCP project ID.
 * `GOOGLE_APPLICATION_CREDENTIALS` with the full path to the Terraform Service Account account.json credentials file created in the last step.
 
-6.  Build the packer image.
+4.  Build the packer image.
 
     ```
     packer build packer.json
     ```
     
-7. Change into the gcp/env/us-east environment directory:
+5. Change into the gcp/env/us-east environment directory:
 
     ```
     cd gcp/env/us-east
