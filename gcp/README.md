@@ -19,14 +19,7 @@
    gcloud config set project $GOOGLE_PROJECT
    ```
 
-4. #### Enable Compute API - NOTE: this may already be enabled and you can verify via the cli command: `gcloud services list`
-   
-   In order to deploy VMs to the project, we need to enable the compute API:
-   ```
-   gcloud services enable compute.googleapis.com
-   ```
-   
-5. #### Create Terraform Service Account.
+3. #### Create Terraform Service Account.
 
     ie.) 
     Create a Terraform Service Account user and its `account.json` credentials file:
@@ -45,19 +38,7 @@
     ```
     gcloud iam service-accounts keys create account.json \
     --iam-account "terraform@$GOOGLE_PROJECT.iam.gserviceaccount.com"
-    ```
-    
-    ##### csi specific services and policy binding
-    ```
-    gcloud services enable \
-    iam.googleapis.com \
-    file.googleapis.com \
-    cloudresourcemanager.googleapis.com
-    
-    gcloud projects add-iam-policy-binding "$GOOGLE_PROJECT" \
-    --member serviceAccount:"terraform@$GOOGLE_PROJECT.iam.gserviceaccount.com" \
-    --role roles/owner
-    ```
+    ``
     
     Now set the full path of the newly created account.json file as `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
     ```
@@ -75,7 +56,7 @@ Before moving onto the next steps, ensure the following environment variables ar
 6. Change into the env/us-east environment directory:
 
     ```
-    cd env/us-east
+    cd gcp/env/us-east/
     ```
 
     Initialize Terraform:
