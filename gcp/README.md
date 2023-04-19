@@ -39,6 +39,17 @@
     gcloud iam service-accounts keys create account.json \
     --iam-account "terraform@$GOOGLE_PROJECT.iam.gserviceaccount.com"
     ```
+        ##### csi specific services and policy binding
+    ```
+    gcloud services enable \
+    iam.googleapis.com \
+    file.googleapis.com \
+    cloudresourcemanager.googleapis.com
+    
+    gcloud projects add-iam-policy-binding "$GOOGLE_PROJECT" \
+    --member serviceAccount:"terraform@$GOOGLE_PROJECT.iam.gserviceaccount.com" \
+    --role roles/owner
+    ```
     
     Now set the full path of the newly created account.json file as `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
     
