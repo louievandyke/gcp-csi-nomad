@@ -56,10 +56,10 @@ Before moving onto the next steps, ensure the following environment variables ar
 
 
 
-6. Change into the env/us-east environment directory:
+6. Change into the gcp/env/us-east environment directory:
 
     ```
-    cd gcp/env/us-east/
+    cd gcp/env/us-east
     ```
 
     Initialize Terraform:
