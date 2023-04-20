@@ -2,9 +2,16 @@ terraform {
   required_version = ">= 0.12.0"
 }
 
+
+variable "name" {
+  type        = string
+  default     = "hashistack"
+  description = "hashistack"
+}
+
 variable "project" {
   type        = string
-  default     = "lvd-nomad"
+  default     = "nomad"
   description = "The Google Cloud Platform project to deploy the Nomad cluster in."
 }
 
