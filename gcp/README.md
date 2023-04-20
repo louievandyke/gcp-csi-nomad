@@ -253,6 +253,7 @@ job "alpine" {
       source    = "disk-0"
       access_mode = "file-system"
       attachment_mode = "single-node-writer"
+         
     }
 
     task "docker" {
@@ -283,8 +284,10 @@ type = "csi"
 id = "disk-0"
 name = "disk-0"
 external_id = "projects/«gcp-project-id»/zones/us-east1-c/disks/hashistack-csi-disk-0"
-access_mode = "single-node-writer"
-attachment_mode = "file-system"
+capability {
+   access_mode = "single-node-writer"
+   attachment_mode = "file-system"
+}
 plugin_id = "gcepd"
 ```
 
