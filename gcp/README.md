@@ -374,8 +374,3 @@ ID        Node ID   Task Group  Version  Desired  Status   Created  Modified
 0fb4b9d0  b9438f36  alloc       0        run      running  44s ago  18s ago
 ```
 
-Use nomad alloc exec to connect to the alpine container.
-
-`nomad alloc exec -i -t -task alloc 0fb4b9d0 /bin/sh`
-
-
