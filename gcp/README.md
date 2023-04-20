@@ -251,6 +251,8 @@ job "alpine" {
       type      = "csi"
       read_only = false
       source    = "disk-0"
+      access_mode = "file-system"
+      attachment_mode = "single-node-writer"
     }
 
     task "docker" {
