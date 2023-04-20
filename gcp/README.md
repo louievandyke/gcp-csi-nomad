@@ -46,7 +46,9 @@
     iam.googleapis.com \
     file.googleapis.com \
     cloudresourcemanager.googleapis.com
+    ```
     
+    ```
     gcloud projects add-iam-policy-binding "$GOOGLE_PROJECT" \
     --member serviceAccount:"terraform@$GOOGLE_PROJECT.iam.gserviceaccount.com" \
     --role roles/owner
@@ -69,7 +71,7 @@ Before moving onto the next steps, ensure the following environment variables ar
 4.  Build the packer image.
 
     ```
-    packer build packer.json
+    packer build gcp/packer.json
     ```
     
 5. Change into the gcp/env/us-east environment directory:
