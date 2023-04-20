@@ -143,6 +143,13 @@ terraform output > ~/csi/disks.out
 cp nomad-sa-key.json ~/csi
 ```
 
+#### You should be able to work from the csi folder at this point.
+
+```
+cd ~/csi
+consul kv put service_account @nomad-sa-key.json
+```
+
 #### Create the files you’ll need for Nomad
 ##### controller.nomad
 
