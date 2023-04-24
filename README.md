@@ -17,10 +17,9 @@ to bootstrap a local staging environment:
 
 ```bash
 $ git clone https://github.com/louievandyke/gcp-csi-nomad.git
-$ vagrant up && vagrant ssh
 ```
 
-The Vagrant staging environment pre-installs Packer, Terraform, and Docker.
+## The Vagrant staging environment pre-installs Packer, Terraform, and Docker.
 
 ## Provision a cluster
 
