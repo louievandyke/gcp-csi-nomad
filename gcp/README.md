@@ -20,6 +20,8 @@ After installation, authenticate `gcloud` with the following command:
 
    #### The new GCP doormat process allows for temporary accounts to be created for up to seven days.  Once your project is approved please note the project id that is created and use it below.
    
+   ### Note: your project id will be in this format `hd-xxx...` don't use the human readable name.
+   
    ```
    export GOOGLE_PROJECT=<your project id>
    ```
