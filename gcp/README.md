@@ -1,6 +1,15 @@
 
 # Provision a Nomad cluster on GCP with Google Compute Engine - Persistent Disk
 
+### Install and Authenticate the GCP SDK Command Line Tools
+
+To install the GCP SDK Command Line Tools, follow the installation instructions for your specific operating system:
+
+* [Linux](https://cloud.google.com/sdk/docs/downloads-interactive#linux)
+* [MacOS](https://cloud.google.com/sdk/docs/downloads-interactive#mac)
+* [Windows](https://cloud.google.com/sdk/docs/downloads-interactive#windows)
+
+After installation, authenticate `gcloud` with the following command:
 
 1. #### Login to google cloud:
    ```
