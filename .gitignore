@@ -1,10 +1,3 @@
-# Local .terraform directories
-**/.terraform/*
-
-# .tfstate files
-*.tfstate
-*.tfstate.*
-
 # Crash log files
 crash.log
 
@@ -31,3 +24,25 @@ override.tf.json
 
 # Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
 # example: *tfplan*
+
+# ignore Vagrant related files
+*.log
+.vagrant
+
+# ignore GoLand IDE
+.idea
+
+# Terraform state files.
+*.tfstate
+*.tfstate.backup
+*.tfstate.*.backup
+.terraform.tfstate.lock.info
+
+# Terraform module and provider directory.
+.terraform
+
+# Terraform vars file
+terraform.tfvars
+
+# Cleanup files
+.cleanup*
