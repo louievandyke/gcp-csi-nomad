@@ -69,14 +69,14 @@ install_release()
     install_zip "$PRODUCT" "$DOWNLOAD_URL"
 }
 
-install_release "consul" "1.11.1"
-install_release "vault" "1.9.2"
-install_release "nomad" "1.2.3"
+install_release "consul" "1.15.2"
+install_release "vault" "1.13.1"
+install_release "nomad" "1.5.2"
 install_release "packer" "1.7.8"
-install_release "terraform" "1.1.2"
-install_release "consul-template" "0.27.2"
+install_release "terraform" "1.4.5"
+install_release "consul-template" "0.31.0"
 install_release "envconsul" "0.10.0"
-install_release "sentinel" "0.15.6"
+install_release "sentinel" "0.21.0"
 
 CONSULCONFIGDIR=/etc/consul.d
 CONSULDIR=/opt/consul
