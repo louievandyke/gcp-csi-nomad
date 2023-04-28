@@ -327,7 +327,7 @@ Check that your volume is listed in nomad volume status
 $ nomad volume status
 Container Storage Interface
 ID      Name    Plugin ID  Schedulable  Access Mode
-disk-0  disk-0  gcepd      true         single-node-writer
+disk-0  disk-0  gcepd      true         <none>
 ```
 
 You can get extended information about your CSI disk bt adding its identifier to the volume status command.
